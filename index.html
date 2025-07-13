@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>線上飲品訂餐單</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #333;
+        }
+        .container {
+            max-width: 960px;
+            margin: 2rem auto;
+            padding: 1.5rem;
+            background-color: #fff;
+            border-radius: 1rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #4a90e2;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        h2 {
+            color: #555;
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 0.5rem;
+        }
+        .menu-category {
+            margin-bottom: 1.5rem;
+        }
+        .menu-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px dashed #e0e0e0;
+        }
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+        .item-name {
+            font-weight: 600;
+            color: #333;
+        }
+        .item-price {
+            color: #666;
+        }
+        .order-section {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid #e0e0e0;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #555;
+        }
+        select, input[type="number"], input[type="text"], textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ccc;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield; /* Firefox */
+        }
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .add-to-cart-btn {
+            background-color: #4a90e2;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-weight: 600;
+            width: 100%;
+            border: none;
+        }
+        .add-to-cart-btn:hover {
+            background-color: #357bd8;
+        }
+        .order-summary {
+            background-color: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px dashed #e0e0e0;
+        }
+        .order-item:last-child {
+            border-bottom: none;
+        }
+        .total-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: right;
+            margin-top: 1rem;
+            color: #e74c3c;
+        }
+        .submit-order-btn {
+            background-color: #28a745;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-weight: 700;
+            width: 100%;
+            margin-top: 1.5rem;
+            border: none;
+        }
+        .submit-order-btn:hover {
+            background-color: #218838;
+        }
+        .order-list-section {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid #e0e0e0;
+        }
+        .order-card {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
+        .order-card h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #4a90e2;
+            margin-bottom: 0.5rem;
+        }
+        .order-card p {
+            margin-bottom: 0.25rem;
+            color: #555;
+        }
+        .order-card ul {
+            list-style: none;
+            padding-left: 0;
+            margin-top: 0.5rem;
+            border-top: 1px dashed #eee;
+            padding-top: 0.5rem;
+        }
+        .order-card li {
+            margin-bottom: 0.25rem;
+            color: #666;
+        }
+        .message-box {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: none; /* Hidden by default */
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .message-box.show {
+            display: block;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>線上飲品訂餐單</h1>
+
+        <div class="menu-section">
+            <h2>花茶大師 英式莊園茶莊 菜單</h2>
+            <!-- 菜單內容來自您提供的圖片 -->
+            <div class="menu-category">
+                <h3>嚴選莊園紅茶</h3>
+                <div class="menu-item">
+                    <span class="item-name">台灣原生紅茶</span>
+                    <span class="item-price">NT$40</span>
+                </div>
+                <div class="menu-item">
+                    <span class="item-name">松露拿鐵</span>
+                    <span class="item-price">NT$60</span>
+                </div>
+                <div class="menu-item">
+                    <span class="item-name">伯爵紅茶</span>
+                    <span class="item-price">NT$40</span>
+                </div>
+                <div class="menu-item">
+                    <span class="item-name">阿薩姆高山青</span>
+                    <span class="item-price">NT$60</span>
+                </div>
+                <div class="menu-item">
+                    <span class="item-name">錫蘭紅茶</span>
+                    <span class="item-price">NT$40</span>
+                </div>
+                <div class="menu-item">
+                    <span class="item-name">玫瑰紅茶</span>
+                    <span class="item-price">NT$50</span>
+                </div>
+                <div class="menu-item">
+                    <span class="item-name">薄荷紅茶</span>
+                    <span class="item-price">NT$50</span>
+                </div>
+                <div class="menu-item">
+                    <span class="item-name">茉莉綠茶</span>
+                    <span class="item-price">NT$40</span>
+                </div>
+                <div class="menu-item">
+                    <span class="item-name">烏龍茶</span>
+                    <span class="item-price">NT$40</span>
+                </div>
+                <div class="menu-item">
+                    <span class="item-name">普洱茶</span>
+                    <span class="item-price">NT$40</span>
+                </div>
+                <div class="menu-item">
+                    <span class="item-name">鐵觀音</span>
+                    <span class="item-price">NT$40</span>
+                </div>
+                <div class="menu-item">
+                    <span class="item-name">桂花烏龍</span>
+                    <span class="item-price">NT$60</span>
+                </div>
+                <div class="menu-item">
+                    <span class="item-name">玄米抹茶</span>
+                    <span class="item-price">NT$80</span>
+                </div>
+            </div>
+
+            <div class="menu-category">
+                <h3>咖啡系列</h3>
+                <div class="menu-item">
+                    <span class="item-name">美式咖啡</span>
+                    <span class="item-price">NT$50</span>
+                </div>
+                <div class="menu-item">
+                    <span class="item-name">拿鐵</span>
+                    <span class="item-price">NT$60</span>
+                </div>
+                <div class="menu-item">
+                    <span class="item-name">卡布奇諾</span>
+                    <span class="item-price">NT$60</span>
+                </div>
+                <div class="menu-item">
+                    <span class="item-name">焦糖瑪奇朵</span>
+                    <span class="item-price">NT$60</span>
+                </div>
+                <div class="menu-item">
+                    <span class="item-name">摩卡</span>
+                    <span class="item-price">NT$60</span>
+                </div>
+            </div>
+
+            <div class="menu-category">
+                <h3>特調飲品</h3>
+                <div class="menu-item">
+                    <span class="item-name">蜂蜜檸檬</span>
+                    <span class="item-price">NT$60</span>
+                </div>
+                <div class="menu-item">
+                    <span class="item-name">百香果綠茶</span>
+                    <span class="item-price">NT$60</span>
+                </div>
+                <div class="menu-item">
+                    <span class="item-name">金桔檸檬</span>
+                    <span class="item-price">NT$60</span>
+                </div>
+                <div class="menu-item">
+                    <span class="item-name">洛神花茶</span>
+                    <span class="item-price">NT$60</span>
+                </div>
+                <div class="menu-item">
+                    <span class="item-name">冬瓜茶</span>
+                    <span class="item-price">NT$40</span>
+                </div>
+                <div class="menu-item">
+                    <span class="item-name">仙草凍奶茶</span>
+                    <span class="item-price">NT$60</span>
+                </div>
+                <div class="menu-item">
+                    <span class="item-name">珍珠奶茶</span>
+                    <span class="item-price">NT$60</span>
+                </div>
+                <div class="menu-item">
+                    <span class="item-name">布丁奶茶</span>
+                    <span class="item-price">NT$60</span>
+                </div>
+                <div class="menu-item">
+                    <span class="item-name">紅豆奶茶</span>
+                    <span class="item-price">NT$60</span>
+                </div>
+                <div class="menu-item">
+                    <span class="item-name">綠豆沙</span>
+                    <span class="item-price">NT$60</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="order-section">
+            <h2>新增訂單項目</h2>
+            <div class="form-group">
+                <label for="drinkSelect">選擇飲品:</label>
+                <select id="drinkSelect" class="rounded-lg p-2 border border-gray-300">
+                    <!-- 飲品選項將由 JavaScript 動態生成 -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="sweetnessSelect">甜度:</label>
+                <select id="sweetnessSelect" class="rounded-lg p-2 border border-gray-300">
+                    <option value="正常糖">正常糖</option>
+                    <option value="七分糖">七分糖</option>
+                    <option value="半糖">半糖</option>
+                    <option value="微糖">微糖</option>
+                    <option value="無糖">無糖</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="iceSelect">冰塊:</label>
+                <select id="iceSelect" class="rounded-lg p-2 border border-gray-300">
+                    <option value="正常冰">正常冰</option>
+                    <option value="少冰">少冰</option>
+                    <option value="微冰">微冰</option>
+                    <option value="去冰">去冰</option>
+                    <option value="熱">熱</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="quantityInput">數量:</label>
+                <input type="number" id="quantityInput" value="1" min="1" class="rounded-lg p-2 border border-gray-300">
+            </div>
+            <button id="addToCartBtn" class="add-to-cart-btn">加入訂單</button>
+        </div>
+
+        <div class="order-summary">
+            <h2>您的訂單</h2>
+            <div id="cartItems">
+                <!-- 訂單項目將由 JavaScript 動態生成 -->
+                <p class="text-center text-gray-500">目前沒有訂單項目。</p>
+            </div>
+            <div class="total-price">
+                總計: NT$<span id="totalPrice">0</span>
+            </div>
+            <div class="form-group mt-4">
+                <label for="customerName">您的姓名:</label>
+                <input type="text" id="customerName" placeholder="請輸入您的姓名" class="rounded-lg p-2 border border-gray-300">
+            </div>
+            <div class="form-group">
+                <label for="notes">備註:</label>
+                <textarea id="notes" rows="3" placeholder="例如：加珍珠、少冰" class="rounded-lg p-2 border border-gray-300"></textarea>
+            </div>
+            <button id="submitOrderBtn" class="submit-order-btn">提交訂單</button>
+        </div>
+
+        <div class="order-list-section">
+            <h2>所有已提交訂單</h2>
+            <div id="submittedOrders">
+                <!-- 已提交的訂單將由 JavaScript 動態生成 -->
+                <p class="text-center text-gray-500">目前沒有已提交的訂單。</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="messageBox" class="message-box"></div>
+
+    <script type="module">
+        // Firebase 相關導入
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // 全局變數，用於 Firebase 配置和應用程式 ID
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let app;
+        let db;
+        let auth;
+        let userId = 'anonymous'; // 預設為匿名
+        let isAuthReady = false;
+
+        // 菜單數據
+        const menu = {
+            "嚴選莊園紅茶": [
+                { name: "台灣原生紅茶", price: 40 },
+                { name: "松露拿鐵", price: 60 },
+                { name: "伯爵紅茶", price: 40 },
+                { name: "阿薩姆高山青", price: 60 },
+                { name: "錫蘭紅茶", price: 40 },
+                { name: "玫瑰紅茶", price: 50 },
+                { name: "薄荷紅茶", price: 50 },
+                { name: "茉莉綠茶", price: 40 },
+                { name: "烏龍茶", price: 40 },
+                { name: "普洱茶", price: 40 },
+                { name: "鐵觀音", price: 40 },
+                { name: "桂花烏龍", price: 60 },
+                { name: "玄米抹茶", price: 80 }
+            ],
+            "咖啡系列": [
+                { name: "美式咖啡", price: 50 },
+                { name: "拿鐵", price: 60 },
+                { name: "卡布奇諾", price: 60 },
+                { name: "焦糖瑪奇朵", price: 60 },
+                { name: "摩卡", price: 60 }
+            ],
+            "特調飲品": [
+                { name: "蜂蜜檸檬", price: 60 },
+                { name: "百香果綠茶", price: 60 },
+                { name: "金桔檸檬", price: 60 },
+                { name: "洛神花茶", price: 60 },
+                { name: "冬瓜茶", price: 40 },
+                { name: "仙草凍奶茶", price: 60 },
+                { name: "珍珠奶茶", price: 60 },
+                { name: "布丁奶茶", price: 60 },
+                { name: "紅豆奶茶", price: 60 },
+                { name: "綠豆沙", price: 60 }
+            ]
+        };
+
+        let cart = []; // 購物車
+        let submittedOrders = []; // 已提交訂單列表
+
+        // 獲取 DOM 元素
+        const drinkSelect = document.getElementById('drinkSelect');
+        const sweetnessSelect = document.getElementById('sweetnessSelect');
+        const iceSelect = document.getElementById('iceSelect');
+        const quantityInput = document.getElementById('quantityInput');
+        const addToCartBtn = document.getElementById('addToCartBtn');
+        const cartItemsDiv = document.getElementById('cartItems');
+        const totalPriceSpan = document.getElementById('totalPrice');
+        const customerNameInput = document.getElementById('customerName');
+        const notesTextarea = document.getElementById('notes');
+        const submitOrderBtn = document.getElementById('submitOrderBtn');
+        const submittedOrdersDiv = document.getElementById('submittedOrders');
+        const messageBox = document.getElementById('messageBox');
+
+        // 顯示消息框
+        function showMessageBox(message, type = 'success') {
+            messageBox.textContent = message;
+            messageBox.className = `message-box show bg-${type === 'success' ? 'green' : 'red'}-500`;
+            setTimeout(() => {
+                messageBox.classList.remove('show');
+            }, 3000);
+        }
+
+        // 初始化 Firebase
+        async function initializeFirebase() {
+            try {
+                if (Object.keys(firebaseConfig).length > 0) {
+                    app = initializeApp(firebaseConfig);
+                    db = getFirestore(app);
+                    auth = getAuth(app);
+
+                    onAuthStateChanged(auth, async (user) => {
+                        if (user) {
+                            userId = user.uid;
+                            console.log("Firebase authenticated. User ID:", userId);
+                        } else {
+                            // 如果沒有用戶，嘗試匿名登錄
+                            if (initialAuthToken) {
+                                await signInWithCustomToken(auth, initialAuthToken);
+                            } else {
+                                await signInAnonymously(auth);
+                            }
+                            userId = auth.currentUser?.uid || crypto.randomUUID(); // Fallback for anonymous
+                            console.log("Firebase signed in anonymously. User ID:", userId);
+                        }
+                        isAuthReady = true;
+                        // 在 Firebase 準備好後加載訂單
+                        loadOrders();
+                    });
+                } else {
+                    console.warn("Firebase config is empty. Running without Firebase persistence.");
+                    isAuthReady = true; // 即使沒有 Firebase 也標記為準備好
+                    loadOrders(); // 嘗試加載本地訂單（如果有的話）
+                }
+            } catch (error) {
+                console.error("Error initializing Firebase:", error);
+                showMessageBox("初始化 Firebase 失敗！", "error");
+                isAuthReady = true; // 即使出錯也標記為準備好，以便應用程式可以繼續運行
+                loadOrders(); // 嘗試加載本地訂單
+            }
+        }
+
+        // 從菜單數據填充飲品選擇下拉菜單
+        function populateDrinkSelect() {
+            drinkSelect.innerHTML = ''; // 清空現有選項
+            for (const category in menu) {
+                const optgroup = document.createElement('optgroup');
+                optgroup.label = category;
+                menu[category].forEach(drink => {
+                    const option = document.createElement('option');
+                    option.value = drink.name;
+                    option.textContent = `${drink.name} (NT$${drink.price})`;
+                    option.dataset.price = drink.price;
+                    optgroup.appendChild(option);
+                });
+                drinkSelect.appendChild(optgroup);
+            }
+        }
+
+        // 更新購物車顯示和總價
+        function updateCartDisplay() {
+            cartItemsDiv.innerHTML = '';
+            if (cart.length === 0) {
+                cartItemsDiv.innerHTML = '<p class="text-center text-gray-500">目前沒有訂單項目。</p>';
+                totalPriceSpan.textContent = '0';
+                return;
+            }
+
+            let total = 0;
+            cart.forEach((item, index) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'order-item';
+                itemDiv.innerHTML = `
+                    <span>${item.name} x ${item.quantity} (${item.sweetness}, ${item.ice})</span>
+                    <span>NT$${item.price * item.quantity}</span>
+                    <button class="text-red-500 hover:text-red-700 ml-2 remove-item-btn" data-index="${index}">移除</button>
+                `;
+                cartItemsDiv.appendChild(itemDiv);
+                total += item.price * item.quantity;
+            });
+            totalPriceSpan.textContent = total;
+
+            // 為移除按鈕添加事件監聽器
+            document.querySelectorAll('.remove-item-btn').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const indexToRemove = parseInt(event.target.dataset.index);
+                    cart.splice(indexToRemove, 1); // 從購物車中移除項目
+                    updateCartDisplay(); // 更新顯示
+                });
+            });
+        }
+
+        // 將選定的飲品添加到購物車
+        addToCartBtn.addEventListener('click', () => {
+            const selectedOption = drinkSelect.options[drinkSelect.selectedIndex];
+            if (!selectedOption) {
+                showMessageBox("請選擇飲品！", "error");
+                return;
+            }
+
+            const drinkName = selectedOption.value;
+            const drinkPrice = parseFloat(selectedOption.dataset.price);
+            const sweetness = sweetnessSelect.value;
+            const ice = iceSelect.value;
+            const quantity = parseInt(quantityInput.value);
+
+            if (isNaN(quantity) || quantity <= 0) {
+                showMessageBox("數量必須大於 0！", "error");
+                return;
+            }
+
+            const existingItemIndex = cart.findIndex(item =>
+                item.name === drinkName && item.sweetness === sweetness && item.ice === ice
+            );
+
+            if (existingItemIndex > -1) {
+                cart[existingItemIndex].quantity += quantity;
+            } else {
+                cart.push({
+                    name: drinkName,
+                    price: drinkPrice,
+                    sweetness: sweetness,
+                    ice: ice,
+                    quantity: quantity
+                });
+            }
+
+            showMessageBox("已加入訂單！");
+            updateCartDisplay();
+            // 重置表單
+            quantityInput.value = 1;
+        });
+
+        // 提交訂單
+        submitOrderBtn.addEventListener('click', async () => {
+            if (cart.length === 0) {
+                showMessageBox("您的訂單是空的，請先加入飲品！", "error");
+                return;
+            }
+
+            const customerName = customerNameInput.value.trim();
+            if (!customerName) {
+                showMessageBox("請輸入您的姓名！", "error");
+                return;
+            }
+
+            const notes = notesTextarea.value.trim();
+            const totalAmount = parseFloat(totalPriceSpan.textContent);
+
+            const newOrder = {
+                customerName: customerName,
+                userId: userId, // 儲存用戶ID
+                items: JSON.parse(JSON.stringify(cart)), // 深度複製購物車內容
+                total: totalAmount,
+                notes: notes,
+                timestamp: new Date().toISOString()
+            };
+
+            try {
+                if (db && isAuthReady) {
+                    // 將訂單儲存到 Firestore 的公共集合中
+                    const ordersCollectionRef = collection(db, `artifacts/${appId}/public/data/orders`);
+                    await addDoc(ordersCollectionRef, newOrder);
+                    showMessageBox("訂單已成功提交！");
+                } else {
+                    // 如果沒有 Firebase 或未準備好，則儲存到本地
+                    submittedOrders.push(newOrder);
+                    showMessageBox("訂單已提交 (本地儲存)！");
+                }
+                
+                // 清空購物車和表單
+                cart = [];
+                updateCartDisplay();
+                customerNameInput.value = '';
+                notesTextarea.value = '';
+                // 重新載入所有訂單以更新顯示
+                loadOrders();
+
+            } catch (error) {
+                console.error("提交訂單時出錯:", error);
+                showMessageBox("提交訂單失敗！", "error");
+            }
+        });
+
+        // 加載已提交的訂單
+        async function loadOrders() {
+            if (!isAuthReady) {
+                console.log("Firebase Auth not ready yet. Retrying loadOrders...");
+                setTimeout(loadOrders, 500); // 等待並重試
+                return;
+            }
+
+            submittedOrdersDiv.innerHTML = '<p class="text-center text-gray-500">載入中...</p>';
+            try {
+                if (db) {
+                    const ordersCollectionRef = collection(db, `artifacts/${appId}/public/data/orders`);
+                    // 使用 onSnapshot 監聽實時更新
+                    onSnapshot(ordersCollectionRef, (snapshot) => {
+                        const fetchedOrders = [];
+                        snapshot.forEach(doc => {
+                            const data = doc.data();
+                            fetchedOrders.push({ id: doc.id, ...data });
+                        });
+                        submittedOrders = fetchedOrders; // 更新本地列表
+                        updateSubmittedOrdersDisplay();
+                    }, (error) => {
+                        console.error("監聽訂單時出錯:", error);
+                        showMessageBox("載入已提交訂單失敗！", "error");
+                        submittedOrdersDiv.innerHTML = '<p class="text-center text-red-500">載入訂單失敗。</p>';
+                    });
+                } else {
+                    // 如果沒有 Firebase，只顯示本地儲存的訂單
+                    updateSubmittedOrdersDisplay();
+                }
+            } catch (error) {
+                console.error("載入已提交訂單時出錯:", error);
+                showMessageBox("載入已提交訂單失敗！", "error");
+                submittedOrdersDiv.innerHTML = '<p class="text-center text-red-500">載入訂單失敗。</p>';
+            }
+        }
+
+        // 更新已提交訂單的顯示
+        function updateSubmittedOrdersDisplay() {
+            submittedOrdersDiv.innerHTML = '';
+            if (submittedOrders.length === 0) {
+                submittedOrdersDiv.innerHTML = '<p class="text-center text-gray-500">目前沒有已提交的訂單。</p>';
+                return;
+            }
+
+            // 按時間戳降序排序
+            const sortedOrders = [...submittedOrders].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            sortedOrders.forEach(order => {
+                const orderCard = document.createElement('div');
+                orderCard.className = 'order-card';
+                orderCard.innerHTML = `
+                    <h3>訂單來自: ${order.customerName} (ID: ${order.userId})</h3>
+                    <p><strong>總計:</strong> NT$${order.total}</p>
+                    <p><strong>備註:</strong> ${order.notes || '無'}</p>
+                    <p><strong>時間:</strong> ${new Date(order.timestamp).toLocaleString()}</p>
+                    <h4>訂單明細:</h4>
+                    <ul>
+                        ${order.items.map(item => `
+                            <li>${item.name} x ${item.quantity} (${item.sweetness}, ${item.ice}) - NT$${item.price * item.quantity}</li>
+                        `).join('')}
+                    </ul>
+                `;
+                submittedOrdersDiv.appendChild(orderCard);
+            });
+        }
+
+        // 頁面載入完成後執行
+        window.onload = () => {
+            populateDrinkSelect(); // 填充飲品選擇
+            updateCartDisplay(); // 初始化購物車顯示
+            initializeFirebase(); // 初始化 Firebase
+        };
+    </script>
+</body>
+</html>
